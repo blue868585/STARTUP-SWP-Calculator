@@ -17,7 +17,9 @@ app.use((req, res, next) => {
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://svcdloiiorqrcngfznnc.supabase.co';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 let supabase = null;
+let supabaseAdmin = null;
 let supabaseReady = false;
 
 if (!SUPABASE_ANON_KEY) {
@@ -26,6 +28,11 @@ if (!SUPABASE_ANON_KEY) {
   supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     realtime: { transport: ws }
   });
+  if (SUPABASE_SERVICE_KEY) {
+    supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+      realtime: { transport: ws }
+    });
+  }
   supabaseReady = true;
 }
 
@@ -58,31 +65,39 @@ app.post('/api/preregister', async (req, res) => {
       return res.status(400).json({ error: 'Advertiser coupon code is required' });
     }
 
-    const { data: existing } = await supabase.from('preregistrations').select('id').eq('email', email).maybeSingle();
+    const { data: existing, error: existingErr } = await supabase.from('preregistrations').select('id').eq('email', email).maybeSingle();
+    if (existingErr) throw existingErr;
     if (existing) return res.json({ message: 'Already registered' });
 
-    const { data: advertiser } = await supabase.from('advertisers').select('id,ad_volume').eq('coupon_code', couponCode).maybeSingle();
+    const { data: advertiser, error: advErr } = await supabase.from('advertisers').select('id,ad_volume').eq('coupon_code', couponCode).maybeSingle();
+    if (advErr) throw advErr;
     if (!advertiser) {
       return res.status(400).json({ error: 'Invalid coupon code. Please check with the advertiser.' });
     }
 
-    const { error } = await supabase.from('preregistrations').insert({ email, coupon_code: couponCode });
+    const writeClient = supabaseAdmin || supabase;
+    const { error } = await writeClient.from('preregistrations').insert({ email, coupon_code: couponCode });
     if (error) {
+      console.error('Prereg insert error:', error);
       if (error.code === 'PGRST205') return res.status(500).json({ error: 'Database table not set up. Run the SQL from supabase-schema.sql in your Supabase SQL editor.' });
       throw error;
     }
 
-    const currentVolume = advertiser.ad_volume || 0;
-    const { error: updateError } = await supabase.from('advertisers').update({ ad_volume: currentVolume + 10 }).eq('id', advertiser.id);
+    const currentVolume = Number(advertiser.ad_volume) || 0;
+    const newVolume = currentVolume + 10;
+    const { data: updated, error: updateError } = await writeClient.from('advertisers').update({ ad_volume: newVolume }).eq('id', advertiser.id).select();
     if (updateError) {
       console.error('Token update error:', updateError);
-      return res.status(500).json({ error: 'Failed to update tokens. Make sure the UPDATE RLS policy is added (see supabase-schema.sql).' });
+      return res.status(500).json({ error: 'Failed to update tokens: ' + updateError.message });
+    }
+    if (!updated || updated.length === 0) {
+      return res.status(500).json({ error: 'Token update failed — RLS policy blocks UPDATE. Add SUPABASE_SERVICE_ROLE_KEY to .env or run the UPDATE policy SQL from supabase-schema.sql.' });
     }
 
     res.json({ message: 'Pre-registration successful!' });
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Preregister error:', e);
+    res.status(500).json({ error: 'Server error: ' + (e.message || e) });
   }
 });
 
@@ -97,12 +112,15 @@ app.post('/api/advertise', async (req, res) => {
       return res.status(400).json({ error: 'Valid email required' });
     }
 
-    const { data: existing } = await supabase.from('advertisers').select('id').eq('email', cleanEmail).maybeSingle();
+    const { data: existing, error: checkError } = await supabase.from('advertisers').select('id').eq('email', cleanEmail).maybeSingle();
+    if (checkError) throw checkError;
     if (existing) return res.json({ message: 'Already registered' });
 
     const couponCode = generateCoupon();
+    console.log('Generated coupon:', couponCode);
 
-    const { data: newAdvertiser, error } = await supabase.from('advertisers').insert({
+    const writeClient = supabaseAdmin || supabase;
+    const { data: newAdvertiser, error } = await writeClient.from('advertisers').insert({
       name,
       email: cleanEmail,
       password,
@@ -114,6 +132,7 @@ app.post('/api/advertise', async (req, res) => {
     }).select();
 
     if (error) {
+      console.error('Insert error:', error);
       if (error.code === 'PGRST205') return res.status(500).json({ error: 'Database table not set up. Run the SQL from supabase-schema.sql in your Supabase SQL editor.' });
       throw error;
     }
@@ -128,8 +147,8 @@ app.post('/api/advertise', async (req, res) => {
       }
     });
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Advertise error:', e);
+    res.status(500).json({ error: 'Server error: ' + (e.message || e) });
   }
 });
 
@@ -164,7 +183,7 @@ app.post('/api/advertise/login', async (req, res) => {
     });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error: ' + (e.message || e) });
   }
 });
 
@@ -179,15 +198,17 @@ app.get('/api/portfolio', async (req, res) => {
 
     let preregCount = 0;
     try {
-      const { count, error: countError } = await supabase.from('preregistrations')
+      const countClient = supabaseAdmin || supabase;
+      const { count, error: countError } = await countClient.from('preregistrations')
         .select('*', { count: 'exact', head: true })
         .eq('coupon_code', advertiser.coupon_code);
       if (!countError) preregCount = count || 0;
+      else console.error('Count query error:', countError);
     } catch (e) {
       console.error('Count query error (non-fatal):', e);
     }
 
-    const volume = advertiser.ad_volume || 0;
+    const volume = Number(advertiser.ad_volume) || 0;
 
     let profitShareTier, tierLabel, nextTierVolume, nextTierPercent;
     if (volume >= 1000) { profitShareTier = 50; tierLabel = 'Platinum'; nextTierVolume = null; nextTierPercent = null }
@@ -195,6 +216,8 @@ app.get('/api/portfolio', async (req, res) => {
     else if (volume >= 200) { profitShareTier = 30; tierLabel = 'Silver'; nextTierVolume = 500; nextTierPercent = 40 }
     else if (volume >= 50) { profitShareTier = 20; tierLabel = 'Bronze'; nextTierVolume = 200; nextTierPercent = 30 }
     else { profitShareTier = 10; tierLabel = 'Entry'; nextTierVolume = 50; nextTierPercent = 20 }
+
+    console.log('Portfolio for', email, '- volume:', volume, 'tier:', tierLabel, 'preregCount:', preregCount);
 
     res.json({
       name: advertiser.name,
