@@ -210,13 +210,4 @@ app.get('/api/portfolio', async (req, res) => {
   }
 });
 
-app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
-});
-
-app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({ error: 'Internal server error' });
-});
-
 module.exports = { app, supabase };
