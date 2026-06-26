@@ -1,6 +1,7 @@
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
+const ws = require('ws');
 require('dotenv').config();
 
 const app = express();
@@ -22,7 +23,9 @@ let supabaseReady = false;
 if (!SUPABASE_ANON_KEY) {
   console.error('ERROR: SUPABASE_ANON_KEY not set. API routes will return 503.');
 } else {
-  supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    realtime: { transport: ws }
+  });
   supabaseReady = true;
 }
 
