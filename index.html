@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STARTUP SWP Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrapper">
+<header class="header">
+<div class="header-top">
+<div class="header-text">
+<h1>STARTUP <span>SWP Calculator</span></h1>
+<p>Sustainable Technology And Renewable Power Utilizing Profits &bull; Systematic Withdrawal Plan Simulator</p>
+</div>
+<div style="display:flex;align-items:center;gap:10px">
+<a href="advertise.html" class="advertise-nav-btn">Advertise With Us</a>
+<a href="login.html" style="color:#2d6bff;font-size:13px;font-weight:600;text-decoration:none">Login</a>
+</div>
+</header>
+
+<div class="grid">
+<div class="card">
+<div class="card-title">Investment Parameters</div>
+
+<div class="field">
+<label>Initial Investment <span class="val" id="initialDisplay">₹500</span></label>
+<div class="input-wrap">
+<span class="prefix">₹</span>
+<input type="number" id="initialInvestment" value="500" min="500" max="99999999">
+</div>
+</div>
+
+<div class="field">
+<label>Withdrawal Amount <span class="val" id="withdrawalDisplay">₹0</span></label>
+<div class="input-wrap">
+<span class="prefix">₹</span>
+<input type="number" id="withdrawalAmount" value="0" min="0" max="99999999">
+</div>
+</div>
+
+<div class="field">
+<label>Withdrawal Frequency</label>
+<div class="freq-group" id="freqGroup">
+<span class="freq-opt" data-freq="daily">Daily</span>
+<span class="freq-opt" data-freq="weekly">Weekly</span>
+<span class="freq-opt" data-freq="monthly">Monthly</span>
+<span class="freq-opt" data-freq="yearly">Yearly</span>
+</div>
+</div>
+
+<div class="field">
+<label>Expected Return <span class="val" id="profitDisplay">12%</span></label>
+<div style="font-size:12px;color:#27ae60;font-weight:500;margin-bottom:4px">Total Projected Gain: <span id="rewardMoney">₹360.00</span></div>
+<div class="range-wrap">
+<input type="range" id="profitSlider" min="0" max="30" value="12" step="0.5">
+<div class="range-labels"><span>0%</span><span>30%</span></div>
+</div>
+</div>
+
+<div class="field">
+<label style="color:#e74c3c">Auto Stop Loss <span class="val" id="stopLossDisplay" style="color:#e74c3c">6.0%</span></label>
+<div style="font-size:12px;color:#e74c3c;font-weight:500;margin-bottom:4px">Total Projected Risk: <span id="lossMoney">₹180.00</span></div>
+<div class="range-wrap">
+<input type="range" id="slSlider" min="0" max="15" value="6" step="0.1" disabled>
+<div class="range-labels"><span>0%</span><span>15%</span></div>
+</div>
+<div class="hint" style="font-size:11px;color:#999;margin-top:4px">Display only — losses are not auto-applied in the calculator</div>
+</div>
+
+<div class="field">
+<label>Holding Period <span class="val" id="durationDisplay">6 Days</span></label>
+<div class="period-row">
+<div class="input-wrap" style="flex:0 0 90px">
+<input type="number" id="durationValue" value="6" min="1" max="36500">
+</div>
+<div class="unit-group" id="unitGroup">
+<button class="unit-btn active" data-value="days">Days</button>
+<button class="unit-btn" data-value="weeks">Weeks</button>
+<button class="unit-btn" data-value="months">Months</button>
+<button class="unit-btn" data-value="years">Years</button>
+</div>
+</div>
+</div>
+
+<button class="btn" id="calculateBtn" style="margin-top:6px">Run Calculation</button>
+</div>
+
+<div class="card">
+<div class="card-title">Projected Results</div>
+
+<div id="emptyState" class="empty-state">
+<p>Set your parameters and click <strong>Run Calculation</strong> to view projected results.</p>
+</div>
+
+<div id="resultsContent" style="display:none">
+<div class="results-grid" id="resultsGrid">
+<div class="result-card highlight">
+<div class="label">Final Balance</div>
+<div class="value dollar" id="resFinal">₹0</div>
+</div>
+<div class="result-card">
+<div class="label">Total Profit Generated</div>
+<div class="value dollar" id="resProfit">₹0</div>
+</div>
+<div class="result-card">
+<div class="label">Total Amount Withdrawn</div>
+<div class="value dollar" id="resWithdrawn">₹0</div>
+</div>
+<div class="result-card">
+<div class="label">Withdrawal Cycles</div>
+<div class="value cycles" id="resCycles">0</div>
+</div>
+<div class="result-card">
+<div class="label">Net Growth</div>
+<div class="value percent" id="resGrowth">0%</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="prereg-card">
+<div class="prereg-badge">Limited Offer</div>
+<h2>Pre-Register Now &amp; Unlock Premium Benefits</h2>
+<p class="prereg-sub">Secure your early access to STARTUP's full-featured trading simulation platform</p>
+<div class="prereg-benefits">
+<div class="prereg-benefit">
+<div class="prereg-benefit-icon">10%</div>
+<div class="prereg-benefit-text"><strong>Bonus Discount</strong><span>On all premium features</span></div>
+</div>
+<div class="prereg-benefit">
+<div class="prereg-benefit-icon">PR</div>
+<div class="prereg-benefit-text"><strong>Premium Access</strong><span>Advanced analytics &amp; reporting tools</span></div>
+</div>
+<div class="prereg-benefit">
+<div class="prereg-benefit-icon">EA</div>
+<div class="prereg-benefit-text"><strong>Early Adopter</strong><span>Exclusive lifetime benefits</span></div>
+</div>
+</div>
+<div class="prereg-form">
+<div class="prereg-row">
+<input type="email" id="preregEmail" placeholder="Enter your email address" autocomplete="email">
+<input type="text" id="preregCoupon" placeholder="Coupon code (e.g. ADV-...)" autocomplete="off" style="text-transform:uppercase">
+</div>
+<button id="preregBtn">Pre-Register Free</button>
+</div>
+<p class="prereg-note">No spam. No commitments. Cancel anytime.</p>
+</div>
+
+<div class="bio-section">
+
+<div class="bio-header">
+<div class="bio-icon">i</div>
+<div>
+<h2>About STARTUP</h2>
+<p>Understanding your Systematic Withdrawal Plan simulator</p>
+</div>
+</div>
+
+<div class="bio-grid">
+<div class="bio-block highlight">
+<div class="bio-block-icon"></div>
+<h3>How It Works</h3>
+<p>You define your initial capital, and the platform simulates daily returns using <strong>simple interest</strong> on your original principal. Every day earns the same fixed percentage of your starting investment, giving you a clear, predictable earnings projection. Withdrawals are deducted automatically at the end of each cycle based on your selected frequency. The calculator always projects <strong>pure profit</strong> — no automatic losses are applied in the simulation.</p>
+</div>
+
+<div class="bio-block">
+<div class="bio-block-icon"></div>
+<h3>Investment Parameters</h3>
+<ul>
+<li><span>Initial Investment</span> &mdash; Your starting principal. All daily profits are calculated as a fixed percentage of this base amount.</li>
+<li><span>Withdrawal Amount</span> &mdash; The fixed sum deducted at the end of each withdrawal cycle.</li>
+<li><span>Withdrawal Frequency</span> &mdash; Automatically determined: Days/Weeks = Daily, Months = Weekly, Years = Monthly.</li>
+<li><span>Expected Return</span> &mdash; Daily percentage return on principal. Adjustable from 0% to 30%.</li>
+
+<li><span>Holding Period</span> &mdash; Total investment duration in Days, Weeks, Months, or Years. Sundays excluded for month/year calculations.</li>
+</ul>
+</div>
+
+<div class="bio-block">
+<div class="bio-block-icon"></div>
+<h3>Profit Structure</h3>
+<p><strong>Daily Profit = Principal &times; (Expected Return &divide; 100)</strong></p>
+<p>Example: ₹10,000 at 12% daily return generates <strong>₹1,200 per day</strong>. Profits are credited daily; withdrawals occur per your frequency setting.</p>
+</div>
+
+<div class="bio-block">
+<div class="bio-block-icon"></div>
+<h3>Loss Handling</h3>
+<p>The platform does <strong>not</strong> auto-apply losses in the calculator — every investment shows projected profit. In the event of a <strong>total loss</strong> (admin-triggered), the remaining balance is returned to the user. If the user decides to reinvest, the simulation continues from the remaining amount. Example: ₹500 invested at 12% with a 6% loss event would return ₹470 to the user for potential reinvestment.</p>
+</div>
+</div>
+
+<div class="bio-disclaimer">
+<div class="bio-disclaimer-icon">!</div>
+<div>
+<p><strong>Risk Warning &amp; Terms of Use</strong></p>
+<p>Investment in financial markets involves inherent risk. The projections shown by this simulator are <strong>hypothetical</strong> and do not guarantee future returns or performance. Past performance is not indicative of future results.</p>
+<p>By using this platform, you acknowledge that:</p>
+<ul>
+<li>All calculations are for <strong>educational and planning purposes only</strong>.</li>
+<li>No real transactions, investments, or financial advice are being offered.</li>
+<li>You should consult a <strong>qualified SEBI-registered financial advisor</strong> before making any investment decisions.</li>
+<li>Market conditions, taxes, inflation, and other economic factors are not accounted for in this simulation.</li>
+</ul>
+<p>Please read all guidelines and terms carefully. STARTUP is not liable for any financial decisions made based on these simulations. Use responsibly.</p>
+</div>
+</div>
+
+</div>
+
+<div class="footer">STARTUP SWP Calculator &bull; <a href="advertise.html" style="color:#2d6bff;text-decoration:none;font-weight:600">Advertise With Us</a> &bull; Educational Use Only</div>
+</div>
+
+<div class="popup-overlay" id="popupOverlay">
+<div class="popup">
+<div class="popup-title">Successfully Registered</div>
+<div class="popup-sub">You've secured your 10% bonus discount and premium access.</div>
+<button class="popup-btn" id="popupClose">Got it</button>
+</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

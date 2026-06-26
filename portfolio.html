@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<title>Dashboard — STARTUP SWP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+font-family:'Inter',-apple-system,sans-serif;
+background:#f1f3f7;color:#14161f;
+-webkit-font-smoothing:antialiased;
+-webkit-tap-highlight-color:transparent;
+}
+
+/* ── Layout ── */
+.app{min-height:100vh;min-height:100dvh}
+.app-inner{max-width:1200px;margin:0 auto;padding:24px 20px}
+
+/* ── Top Bar ── */
+.topbar{
+display:flex;align-items:center;justify-content:space-between;
+margin-bottom:28px;
+}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-back{
+color:#8a94a6;font-size:14px;font-weight:500;text-decoration:none;
+display:flex;align-items:center;gap:6px;transition:color .2s;
+}
+.topbar-back:hover{color:#14161f}
+.topbar-badge{
+font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;
+color:#0b9e6b;padding:4px 14px;border-radius:100px;
+background:#e1f7ed;
+}
+
+/* ── Profile Card ── */
+.profile-card{
+background:#fff;border-radius:16px;
+padding:28px 32px;margin-bottom:24px;
+box-shadow:0 1px 4px rgba(0,0,0,0.04);
+display:flex;align-items:center;gap:20px;
+flex-wrap:wrap;
+}
+.profile-avatar{
+width:56px;height:56px;border-radius:16px;
+background:linear-gradient(135deg,#3b82f6,#6366f1);
+display:flex;align-items:center;justify-content:center;
+font-size:24px;font-weight:700;color:#fff;flex-shrink:0;
+box-shadow:0 4px 12px rgba(59,130,246,0.25);
+}
+.profile-details{flex:1;min-width:200px}
+.profile-details h1{font-size:22px;font-weight:700;color:#14161f;margin-bottom:2px}
+.profile-details .profile-email{font-size:14px;color:#8a94a6}
+.profile-stats{
+display:flex;gap:24px;flex-wrap:wrap;
+}
+.profile-stat{text-align:center;min-width:70px}
+.profile-stat .ps-value{
+font-family:'JetBrains Mono',monospace;
+font-size:20px;font-weight:700;color:#14161f;line-height:1.2;
+}
+.profile-stat .ps-label{
+font-size:11px;font-weight:500;color:#8a94a6;
+text-transform:uppercase;letter-spacing:0.4px;margin-top:4px;
+}
+
+/* ── Grid ── */
+.dashboard-grid{display:grid;gap:24px}
+
+/* ── Cards ── */
+.card{
+background:#fff;border-radius:14px;padding:24px;
+box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.card-header{
+display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;
+}
+.card-header h3{
+font-size:12px;font-weight:600;text-transform:uppercase;
+letter-spacing:0.6px;color:#8a94a6;
+}
+
+/* ── Performance Stats ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.stat-item{padding:16px;background:#f8f9fc;border-radius:12px;}
+.stat-item .si-icon{
+width:36px;height:36px;border-radius:10px;
+display:flex;align-items:center;justify-content:center;
+font-size:14px;font-weight:700;margin-bottom:12px;
+}
+.si-icon.blue{background:#eef3ff;color:#3b82f6}
+.si-icon.green{background:#e3f9ed;color:#10b981}
+.si-icon.amber{background:#fef4d6;color:#f59e0b}
+.si-icon.purple{background:#f3edff;color:#7c3aed}
+.stat-item .si-value{
+font-family:'JetBrains Mono',monospace;
+font-size:26px;font-weight:700;color:#14161f;line-height:1.2;margin-bottom:4px;
+}
+.stat-item .si-label{font-size:13px;font-weight:500;color:#6b7b91;}
+
+/* ── Coupon ── */
+.coupon-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.coupon-code{
+flex:1;padding:14px 20px;background:#f4f7fd;border:1px solid #e0e9f5;
+border-radius:10px;font-family:'JetBrains Mono',monospace;
+font-size:22px;font-weight:700;color:#2563eb;letter-spacing:4px;
+text-align:center;user-select:all;
+}
+.copy-btn{
+width:52px;height:52px;border-radius:10px;border:none;
+background:linear-gradient(135deg,#3b82f6,#6366f1);
+color:#fff;font-size:20px;cursor:pointer;
+display:flex;align-items:center;justify-content:center;flex-shrink:0;
+transition:opacity .2s;
+}
+.copy-btn:active{opacity:0.75}
+.copy-btn.done{background:linear-gradient(135deg,#10b981,#059669)}
+.coupon-hint{font-size:13px;color:#8a94a6;line-height:1.5}
+.coupon-hint strong{color:#14161f;font-weight:600}
+
+/* ── Tiers ── */
+.tier-progress{margin-bottom:20px}
+.tier-progress .tp-labels{
+display:flex;justify-content:space-between;
+font-size:13px;color:#8a94a6;margin-bottom:6px;
+}
+.tier-progress .tp-labels strong{color:#14161f}
+.tier-progress .tp-bar{height:8px;background:#e8ecf3;border-radius:6px;overflow:hidden}
+.tier-progress .tp-bar .tp-fill{
+height:100%;background:linear-gradient(90deg,#3b82f6,#6366f1);
+border-radius:6px;transition:width .6s ease;
+}
+.tier-progress .tp-max{font-size:12px;color:#10b981;font-weight:600;text-align:right;margin-top:4px;display:none}
+
+.tier-list{display:grid;gap:6px}
+.tier-row{
+display:flex;align-items:center;gap:14px;
+padding:12px 16px;background:#f8f9fc;
+border:1.5px solid transparent;border-radius:10px;
+transition:all .2s;
+}
+.tier-row.current{background:#eef3ff;border-color:rgba(59,130,246,0.15)}
+.tier-rank{
+width:30px;height:30px;border-radius:50%;
+display:flex;align-items:center;justify-content:center;
+font-size:11px;font-weight:700;flex-shrink:0;
+}
+.tier-rank.e{background:#eef0f2;color:#6b7280}
+.tier-rank.b{background:#f5ebe0;color:#8b5e34}
+.tier-rank.s{background:#eef0f4;color:#5b6778}
+.tier-rank.g{background:#fef3cd;color:#b8860b}
+.tier-rank.p{background:#dbeafe;color:#2563eb}
+.tier-info{flex:1;min-width:0}
+.tier-name{font-size:14px;font-weight:600;color:#14161f}
+.tier-range{font-size:12px;color:#8a94a6;margin-top:2px}
+.tier-share{
+font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:#8a94a6;
+}
+.tier-row.current .tier-share{color:#2563eb}
+
+/* ── Milestone ── */
+.milestone{
+margin-top:16px;padding:16px 20px;border-radius:10px;
+display:flex;align-items:center;gap:14px;
+background:#f0f5ff;border:1px solid rgba(59,130,246,0.1);
+}
+.milestone .ms-icon{
+width:40px;height:40px;border-radius:10px;
+background:linear-gradient(135deg,#3b82f6,#6366f1);
+display:flex;align-items:center;justify-content:center;
+color:#fff;font-size:16px;flex-shrink:0;
+}
+.milestone .ms-text{font-size:13px;color:#6b7b91;line-height:1.5}
+.milestone .ms-text strong{color:#14161f}
+.milestone.maxed{background:#e3f9ed;border-color:rgba(16,185,129,0.12)}
+.milestone.maxed .ms-icon{background:linear-gradient(135deg,#10b981,#059669)}
+
+/* ── CTA ── */
+.cta-card{
+background:linear-gradient(135deg,#0b0d17,#151a36);
+border-radius:14px;padding:28px 24px;text-align:center;
+}
+.cta-card h3{color:#fff;font-size:17px;font-weight:700;margin-bottom:4px}
+.cta-card p{color:rgba(255,255,255,0.35);font-size:13px;margin-bottom:18px;line-height:1.4}
+.cta-card .cta-btn{
+display:inline-flex;align-items:center;justify-content:center;
+padding:12px 30px;border-radius:10px;border:none;
+background:linear-gradient(135deg,#3b82f6,#6366f1);
+color:#fff;font-size:13px;font-weight:600;
+font-family:'Inter',sans-serif;text-decoration:none;
+box-shadow:0 4px 14px rgba(59,130,246,0.3);
+transition:opacity .2s;
+}
+.cta-card .cta-btn:active{opacity:0.85}
+
+/* ── Logout ── */
+.logout-wrap{text-align:center;margin-top:28px}
+.logout-btn{
+display:inline-flex;align-items:center;gap:8px;
+padding:10px 24px;border-radius:10px;
+background:#fff;border:1px solid #e8ecf2;color:#6b7b91;
+font-size:13px;font-weight:500;font-family:'Inter',sans-serif;
+cursor:pointer;transition:all .2s;
+}
+.logout-btn:active{background:#f4f5f9;transform:scale(0.97)}
+
+/* ── Referral Doc Table ── */
+.ref-doc{margin-top:24px;padding:20px 24px;background:#fff;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.ref-doc h3{margin-bottom:12px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:#8a94a6}
+.ref-doc table{width:100%;border-collapse:collapse}
+.ref-doc th,.ref-doc td{padding:8px 12px;text-align:left;font-size:13px;border-bottom:1px solid #edf0f5}
+.ref-doc th{font-weight:600;color:#6b7b91}
+.ref-doc td{color:#14161f}
+.ref-doc tr:last-child td,.ref-doc tr:last-child th{border-bottom:none}
+.ref-doc .note{font-size:13px;color:#6b7b91;margin-top:14px;line-height:1.6;padding:14px 16px;background:#f8f9fc;border-radius:8px}
+.ref-doc .note strong{color:#14161f}
+@media(max-width:600px){
+.ref-doc{padding:16px}
+.ref-doc th,.ref-doc td{padding:6px 8px;font-size:12px}
+}
+
+/* ── Toast ── */
+.toast{
+position:fixed;bottom:28px;left:50%;
+transform:translateX(-50%) translateY(20px);
+background:#14161f;color:#fff;
+padding:14px 28px;border-radius:10px;
+font-size:13px;font-weight:500;
+font-family:'Inter',sans-serif;
+box-shadow:0 8px 30px rgba(0,0,0,0.2);
+z-index:1000;opacity:0;
+transition:all .35s cubic-bezier(0.16,1,0.3,1);
+pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Loading / Error ── */
+.loading,.error{text-align:center;padding:100px 20px}
+.spinner{
+width:36px;height:36px;border:3px solid #e2e6ee;
+border-top-color:#3b82f6;border-radius:50%;
+animation:spin .6s linear infinite;margin:0 auto 16px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p,.error p{font-size:15px;color:#8a94a6;margin-bottom:18px}
+.retry-btn{
+display:inline-flex;align-items:center;justify-content:center;
+padding:12px 26px;border-radius:10px;border:none;
+background:linear-gradient(135deg,#3b82f6,#6366f1);
+color:#fff;font-size:13px;font-weight:600;
+font-family:'Inter',sans-serif;text-decoration:none;
+transition:opacity .2s;
+}
+.retry-btn:active{opacity:0.85}
+
+/* ── 2-col grid for desktop ── */
+@media(min-width:900px){
+.dashboard-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto}
+.dashboard-grid .stats-wrap{grid-column:1/-1}
+.dashboard-grid .coupon-wrap{grid-column:1}
+.dashboard-grid .tiers-wrap{grid-column:2}
+.dashboard-grid .cta-wrap{grid-column:1/-1}
+}
+
+/* ── Single column on mobile ── */
+@media(max-width:899px){
+.dashboard-grid{grid-template-columns:1fr}
+}
+
+/* ── Mobile adjustments ── */
+@media(max-width:600px){
+.app-inner{padding:16px 12px}
+.profile-card{padding:20px 16px;gap:16px}
+.profile-avatar{width:48px;height:48px;font-size:20px;border-radius:14px}
+.profile-details h1{font-size:20px}
+.profile-stats{gap:16px}
+.profile-stat .ps-value{font-size:18px}
+.stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+.stat-item{padding:14px}
+.stat-item .si-value{font-size:22px}
+.stat-item .si-icon{width:32px;height:32px;font-size:12px;margin-bottom:10px}
+.card{padding:18px;border-radius:12px}
+.coupon-code{font-size:18px;letter-spacing:3px;padding:12px 14px}
+.copy-btn{width:46px;height:46px;font-size:18px}
+.tier-rank{width:26px;height:26px;font-size:10px}
+.tier-share{font-size:14px}
+}
+
+@media(max-width:400px){
+.stats-grid{gap:8px}
+.stat-item{padding:12px}
+.stat-item .si-value{font-size:18px}
+}
+
+@supports(padding-bottom:env(safe-area-inset-bottom)){
+.toast{bottom:calc(28px + env(safe-area-inset-bottom))}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+<div class="app-inner">
+
+<div class="loading" id="loadingState">
+<div class="spinner"></div>
+<p>Loading your portfolio...</p>
+</div>
+
+<div class="error" id="errorState" style="display:none">
+<p id="errorMsg">Could not load portfolio data.</p>
+<a href="advertise.html" class="retry-btn">Register as Advertiser</a>
+</div>
+
+<div id="portfolioContent" style="display:none">
+
+<!-- Top Bar -->
+<div class="topbar">
+<div class="topbar-left">
+<a href="index.html" class="topbar-back">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+Back
+</a>
+</div>
+<span class="topbar-badge">Active</span>
+</div>
+
+<!-- Profile Card -->
+<div class="profile-card">
+<div class="profile-avatar" id="avatarInitial">A</div>
+<div class="profile-details">
+<h1 id="adName">Advertiser</h1>
+<p class="profile-email" id="adEmail">your@email.com</p>
+</div>
+<div class="profile-stats">
+<div class="profile-stat">
+<div class="ps-value" id="psTier">-</div>
+<div class="ps-label">Tier</div>
+</div>
+<div class="profile-stat">
+<div class="ps-value" id="psShare">-</div>
+<div class="ps-label">Share</div>
+</div>
+<div class="profile-stat">
+<div class="ps-value" id="psPoints">0</div>
+<div class="ps-label">Tokens</div>
+</div>
+<div class="profile-stat">
+<div class="ps-value" id="psReferrals">0</div>
+<div class="ps-label">Refs</div>
+</div>
+</div>
+</div>
+
+<!-- Dashboard Grid -->
+<div class="dashboard-grid">
+
+<!-- Performance -->
+<div class="stats-wrap">
+<div class="card">
+<div class="card-header"><h3>Performance</h3></div>
+<div class="stats-grid">
+<div class="stat-item">
+<div class="si-icon blue">R</div>
+<div class="si-value" id="statPrereg">0</div>
+<div class="si-label">Pre-Registrations</div>
+</div>
+<div class="stat-item">
+<div class="si-icon green">+</div>
+<div class="si-value" id="statVolume">0</div>
+<div class="si-label">Tokens Earned</div>
+</div>
+<div class="stat-item">
+<div class="si-icon amber">%</div>
+<div class="si-value" id="statProfitShare">10%</div>
+<div class="si-label">Profit Share</div>
+</div>
+<div class="stat-item">
+<div class="si-icon purple">#</div>
+<div class="si-value" id="statTier">Entry</div>
+<div class="si-label">Current Tier</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Coupon -->
+<div class="coupon-wrap">
+<div class="card">
+<div class="card-header"><h3>Referral Code</h3></div>
+<div class="coupon-row">
+<div class="coupon-code" id="adCoupon">------</div>
+<button class="copy-btn" id="copyCouponBtn" aria-label="Copy">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+</button>
+</div>
+<p class="coupon-hint">Each referral using your code earns you <strong>10 tokens</strong>.</p>
+</div>
+</div>
+
+<!-- Tiers -->
+<div class="tiers-wrap">
+<div class="card">
+<div class="card-header">
+<h3>Profit Share Tiers</h3>
+<span class="topbar-badge" id="tierBadge">Entry</span>
+</div>
+
+<div class="tier-progress" id="tierProgressWrap">
+<div class="tp-labels">
+<span><strong id="tpCurrent">0</strong> tokens</span>
+<span>Next: <strong id="tpNext">50</strong></span>
+</div>
+<div class="tp-bar"><div class="tp-fill" id="tpFill" style="width:0%"></div></div>
+<div class="tp-max" id="tpMax">Maximum tier achieved</div>
+</div>
+
+<div class="tier-list" id="tierList"></div>
+
+<div class="milestone" id="milestoneBox">
+<div class="ms-icon">&#9650;</div>
+<div class="ms-text" id="milestoneText">Reach <strong>50 tokens</strong> to unlock Bronze tier (20% share).</div>
+</div>
+</div>
+</div>
+
+<!-- CTA -->
+<div class="cta-wrap">
+<div class="cta-card">
+<h3>Grow Your Earnings</h3>
+<p>Share your referral code and earn more with each tier</p>
+<a href="index.html" class="cta-btn">Back to Calculator</a>
+</div>
+</div>
+
+<!-- Referral Logic Documentation -->
+<div class="ref-doc">
+<h3>Referral Program — How It Works</h3>
+<table>
+<tr><th>Action</th><th>Reward</th></tr>
+<tr><td>User pre-registers with your unique coupon code</td><td><strong>+10 tokens</strong></td></tr>
+</table>
+
+<h3 style="margin-top:20px">Token Tiers &amp; Profit Share</h3>
+<table>
+<tr><th>Tier</th><th>Tokens Required</th><th>Referrals Needed</th><th>Profit Share</th></tr>
+<tr><td>Entry</td><td>0 – 49</td><td>0 – 4</td><td>10%</td></tr>
+<tr><td>Bronze</td><td>50 – 199</td><td>5 – 19</td><td>20%</td></tr>
+<tr><td>Silver</td><td>200 – 499</td><td>20 – 49</td><td>30%</td></tr>
+<tr><td>Gold</td><td>500 – 999</td><td>50 – 99</td><td>40%</td></tr>
+<tr><td>Platinum</td><td>1,000+</td><td>100+</td><td>50%</td></tr>
+</table>
+<div class="note">Each advertiser receives a <strong>unique coupon code</strong> at registration. Every pre-registration via that code awards <strong>10 tokens</strong>. Higher token tiers unlock larger profit shares on all revenue from referred users. Tokens and tiers are calculated server-side and reflected in the dashboard.</div>
+</div>
+<div class="logout-wrap">
+<button class="logout-btn" id="logoutBtn">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+Logout
+</button>
+</div>
+
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+document.getElementById('logoutBtn')?.addEventListener('click',()=>{
+localStorage.clear();
+window.location.href='index.html';
+});
+
+const email=new URLSearchParams(location.search).get('email')||localStorage.getItem('advertiser_email');
+
+function getInitial(name){return(name||'A').charAt(0).toUpperCase()}
+
+function renderPortfolio(data){
+document.getElementById('loadingState').style.display='none';
+document.getElementById('portfolioContent').style.display='block';
+
+const name=data.name||'Advertiser';
+document.getElementById('adName').textContent=name;
+document.getElementById('adEmail').textContent=data.email;
+document.getElementById('avatarInitial').textContent=getInitial(name);
+
+const coupon=data.coupon_code||'------';
+document.getElementById('adCoupon').textContent=coupon;
+
+const prereg=data.preregistrations_via_coupon||0;
+const volume=Number(data.ad_volume)||0;
+const share=data.profit_share_percentage||10;
+const tier=data.profit_share_tier||'Entry';
+
+document.getElementById('statPrereg').textContent=prereg;
+document.getElementById('statVolume').textContent=volume.toLocaleString('en-US');
+document.getElementById('statProfitShare').textContent=share+'%';
+document.getElementById('statTier').textContent=tier;
+
+document.getElementById('psTier').textContent=tier.substring(0,4);
+document.getElementById('psShare').textContent=share+'%';
+document.getElementById('psPoints').textContent=volume.toLocaleString('en-US');
+document.getElementById('psReferrals').textContent=prereg;
+
+if(data.coupon_code)localStorage.setItem('advertiser_coupon',data.coupon_code);
+if(data.name)localStorage.setItem('advertiser_name',data.name);
+
+renderTiers(data);
+}
+
+function renderTiers(data){
+const volume=data.ad_volume||0;
+const currentTier=data.profit_share_tier||'Entry';
+
+const tiers=[
+{id:'entry',label:'Entry',range:'0 - 49 tokens',share:10,pts:0,rank:'E'},
+{id:'bronze',label:'Bronze',range:'50 - 199 tokens',share:20,pts:50,rank:'B'},
+{id:'silver',label:'Silver',range:'200 - 499 tokens',share:30,pts:200,rank:'S'},
+{id:'gold',label:'Gold',range:'500 - 999 tokens',share:40,pts:500,rank:'G'},
+{id:'platinum',label:'Platinum',range:'1,000+ tokens',share:50,pts:1000,rank:'P'},
+];
+
+const list=document.getElementById('tierList');
+list.innerHTML='';
+
+let currentIdx=-1;
+tiers.forEach((t,i)=>{
+if(currentTier.toLowerCase()===t.id)currentIdx=i;
+});
+
+const badge=document.getElementById('tierBadge');
+badge.textContent=currentTier;
+
+tiers.forEach((t,i)=>{
+const isCurrent=currentIdx===i;
+const row=document.createElement('div');
+row.className='tier-row'+(isCurrent?' current':'');
+
+const rank=document.createElement('div');
+rank.className='tier-rank '+t.rank.toLowerCase();
+rank.textContent=t.rank;
+
+const info=document.createElement('div');
+info.className='tier-info';
+const nameSpan=document.createElement('div');
+nameSpan.className='tier-name';
+nameSpan.textContent=t.label+(isCurrent?' (Your tier)':'');
+const range=document.createElement('div');
+range.className='tier-range';
+range.textContent=t.range;
+info.appendChild(nameSpan);
+info.appendChild(range);
+
+const share=document.createElement('div');
+share.className='tier-share';
+share.textContent=t.share+'%';
+
+row.appendChild(rank);
+row.appendChild(info);
+row.appendChild(share);
+list.appendChild(row);
+});
+
+const wrap=document.getElementById('tierProgressWrap');
+const fill=document.getElementById('tpFill');
+const tpCurrent=document.getElementById('tpCurrent');
+const tpNext=document.getElementById('tpNext');
+const tpMax=document.getElementById('tpMax');
+
+if(currentIdx<tiers.length-1){
+wrap.style.display='block';
+tpMax.style.display='none';
+const currentTierPts=tiers[Math.max(0,currentIdx)].pts;
+const nextTierPts=tiers[currentIdx+1].pts;
+const pct=Math.min(100,((volume-currentTierPts)/(nextTierPts-currentTierPts))*100);
+fill.style.width=pct+'%';
+tpCurrent.textContent=volume.toLocaleString();
+tpNext.textContent=nextTierPts.toLocaleString();
+}else{
+wrap.style.display='block';
+tpMax.style.display='block';
+fill.style.width='100%';
+fill.style.background='#10b981';
+tpCurrent.textContent=volume.toLocaleString();
+tpNext.textContent='MAX';
+}
+
+const milestone=document.getElementById('milestoneBox');
+const msText=document.getElementById('milestoneText');
+if(data.next_tier_volume){
+const remaining=data.next_tier_volume-volume;
+milestone.className='milestone';
+milestone.querySelector('.ms-icon').innerHTML='&#9650;';
+msText.innerHTML='Need <strong>'+remaining.toLocaleString()+' more tokens</strong> to unlock <strong>'+data.next_tier_percent+'% share</strong>.';
+}else{
+milestone.className='milestone maxed';
+milestone.querySelector('.ms-icon').innerHTML='&#10003;';
+msText.innerHTML='Maximum tier reached — earning <strong>'+data.profit_share_percentage+'%</strong>.';
+}
+}
+
+if(!email){
+document.getElementById('loadingState').style.display='none';
+document.getElementById('errorState').style.display='block';
+document.getElementById('errorMsg').textContent='No advertiser email found. Please register first.';
+}else{
+renderPortfolio({
+name:localStorage.getItem('advertiser_name')||email,
+email:email,
+coupon_code:localStorage.getItem('advertiser_coupon')||'------',
+ad_volume:0,
+preregistrations_via_coupon:0,
+profit_share_percentage:10,
+profit_share_tier:'Entry',
+next_tier_volume:50,
+next_tier_percent:20
+});
+fetch('/api/portfolio?email='+encodeURIComponent(email))
+.then(r=>r.json())
+.then(data=>{
+if(data.error)throw new Error(data.error);
+renderPortfolio(data);
+})
+.catch(e=>{
+showToast('Could not refresh stats: '+e.message);
+});
+}
+
+function showToast(msg){
+const t=document.getElementById('toast');
+t.textContent=msg;
+t.classList.add('show');
+setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+document.getElementById('copyCouponBtn').addEventListener('click',()=>{
+const code=document.getElementById('adCoupon').textContent;
+const btn=document.getElementById('copyCouponBtn');
+navigator.clipboard?.writeText(code).then(()=>{
+btn.classList.add('done');
+btn.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+showToast('Copied!');
+setTimeout(()=>{
+btn.classList.remove('done');
+btn.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+},2000);
+}).catch(()=>{
+showToast('Could not copy. Select manually.');
+});
+});
+</script>
+</body>
+</html>

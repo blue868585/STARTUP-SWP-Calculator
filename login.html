@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advertiser Login — STARTUP SWP Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+.login-wrap{
+max-width:440px;
+margin:40px auto;
+}
+.login-card{
+background:#fff;
+border:1px solid #e8ecf1;
+border-radius:14px;
+padding:36px 32px;
+box-shadow:0 1px 3px rgba(0,0,0,0.04);
+}
+.login-card .card-title{margin-bottom:24px}
+.login-tabs{
+display:flex;
+gap:0;
+margin-bottom:24px;
+border:1px solid #d0d5dd;
+border-radius:8px;
+overflow:hidden;
+}
+.login-tab{
+flex:1;
+padding:10px;
+text-align:center;
+font-size:13px;font-weight:500;
+font-family:'Inter',sans-serif;
+color:#555;
+background:#fff;
+border:none;
+cursor:pointer;
+transition:all .15s;
+}
+.login-tab.active{
+background:#2d6bff;
+color:#fff;
+}
+.login-tab:not(.active):hover{background:#f5f6fa}
+.form-group{display:none}
+.form-group.active{display:block}
+.btn{width:100%;padding:13px 24px;
+background:#2d6bff;
+border:none;border-radius:8px;
+color:#fff;font-size:15px;font-weight:600;
+font-family:'Inter',sans-serif;
+cursor:pointer;
+transition:background .2s;
+margin-top:4px;
+}
+.btn:hover{background:#1a56db}
+.btn:disabled{opacity:0.6;cursor:default}
+.login-footer{
+text-align:center;
+margin-top:20px;
+font-size:13px;
+color:#888;
+}
+.login-footer a{
+color:#2d6bff;
+text-decoration:none;
+font-weight:600;
+}
+.error-msg{
+display:none;
+background:#fff0f0;
+border:1px solid #ffd5d5;
+border-radius:8px;
+padding:12px 16px;
+font-size:13px;
+color:#c0392b;
+margin-bottom:16px;
+}
+.error-msg.show{display:block}
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+<header class="header">
+<h1>STARTUP <span>SWP Calculator</span></h1>
+<p><a href="index.html" style="color:#2d6bff;text-decoration:none">&larr; Back to Calculator</a></p>
+</header>
+
+<div class="login-wrap">
+<div class="login-card">
+<div class="card-title">Advertiser Login</div>
+
+<div id="loginError" class="error-msg"></div>
+
+<div class="login-tabs">
+<button class="login-tab active" data-tab="email">Email</button>
+<button class="login-tab" data-tab="mobile">Mobile</button>
+</div>
+
+<form id="loginForm">
+<div class="form-group active" id="emailGroup">
+<div class="field">
+<label>Email Address</label>
+<div class="input-wrap">
+<input type="email" id="loginEmail" placeholder="Enter your email" autocomplete="email">
+</div>
+</div>
+</div>
+
+<div class="form-group" id="mobileGroup">
+<div class="field">
+<label>Mobile Number</label>
+<div class="input-wrap">
+<span class="prefix">+91</span>
+<input type="tel" id="loginMobile" placeholder="Enter your mobile number">
+</div>
+</div>
+</div>
+
+<div class="field">
+<label>Password</label>
+<div class="input-wrap">
+<input type="password" id="loginPassword" placeholder="Enter your password">
+</div>
+</div>
+
+<button type="submit" class="btn" id="loginBtn">Login</button>
+</form>
+
+<div class="login-footer">
+Don't have an account? <a href="advertise.html">Register as Advertiser</a>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+const tabs=document.querySelectorAll('.login-tab');
+const emailGroup=document.getElementById('emailGroup');
+const mobileGroup=document.getElementById('mobileGroup');
+const loginForm=document.getElementById('loginForm');
+const loginBtn=document.getElementById('loginBtn');
+const loginError=document.getElementById('loginError');
+let activeTab='email';
+
+tabs.forEach(tab=>{
+tab.addEventListener('click',()=>{
+tabs.forEach(t=>t.classList.remove('active'));
+tab.classList.add('active');
+activeTab=tab.dataset.tab;
+emailGroup.classList.toggle('active',activeTab==='email');
+mobileGroup.classList.toggle('active',activeTab==='mobile');
+loginError.classList.remove('show');
+});
+});
+
+loginForm.addEventListener('submit',async(e)=>{
+e.preventDefault();
+loginError.classList.remove('show');
+const password=document.getElementById('loginPassword').value;
+
+const body={password};
+if(activeTab==='email'){
+const email=document.getElementById('loginEmail').value.trim();
+if(!email||!email.includes('@')){
+loginError.textContent='Please enter a valid email';
+loginError.classList.add('show');
+return;
+}
+body.email=email;
+}else{
+const mobile=document.getElementById('loginMobile').value.trim();
+if(!mobile){
+loginError.textContent='Please enter your mobile number';
+loginError.classList.add('show');
+return;
+}
+body.mobile=mobile;
+}
+
+if(!password){
+loginError.textContent='Please enter your password';
+loginError.classList.add('show');
+return;
+}
+
+loginBtn.textContent='Logging in...';
+loginBtn.disabled=true;
+
+try{
+const r=await fetch('/api/advertise/login',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify(body)
+});
+const data=await r.json();
+if(r.ok){
+localStorage.setItem('advertiser_email',data.advertiser.email);
+localStorage.setItem('advertiser_name',data.advertiser.name);
+if(data.advertiser.coupon_code)localStorage.setItem('advertiser_coupon',data.advertiser.coupon_code);
+window.location.href='portfolio.html?email='+encodeURIComponent(data.advertiser.email);
+}else{
+loginError.textContent=data.error||'Login failed';
+loginError.classList.add('show');
+}
+}catch(e){
+  loginError.textContent='Error: '+(e.message||'Connection failed');
+  loginError.classList.add('show');
+}
+loginBtn.textContent='Login';
+loginBtn.disabled=false;
+});
+</script>
+</body>
+</html>

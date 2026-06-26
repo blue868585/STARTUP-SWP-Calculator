@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advertise With Us — STARTUP SWP Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+.ad-intro{
+background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);
+border-radius:14px;
+padding:36px 32px;
+text-align:center;
+margin-bottom:28px;
+position:relative;
+overflow:hidden;
+}
+.ad-intro::before{
+content:'';position:absolute;inset:0;
+background:radial-gradient(ellipse at 70% 30%,rgba(45,107,255,0.15) 0%,transparent 70%);
+pointer-events:none;
+}
+.ad-intro h2{
+color:#fff;
+font-size:24px;font-weight:700;
+letter-spacing:-0.3px;
+margin-bottom:8px;
+position:relative;
+}
+.ad-intro p{
+color:rgba(255,255,255,0.6);
+font-size:14px;
+max-width:600px;
+margin:0 auto 6px;
+position:relative;
+line-height:1.7;
+}
+.ad-intro .highlight-text{
+color:#5a8dff;
+font-weight:600;
+}
+.ad-intro .commission-badge{
+display:inline-block;
+margin-top:16px;
+padding:8px 24px;
+background:rgba(45,107,255,0.2);
+border:1px solid rgba(45,107,255,0.3);
+border-radius:30px;
+color:#7aa3ff;
+font-size:13px;font-weight:600;
+position:relative;
+}
+.ad-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:24px;
+align-items:start;
+}
+@media(max-width:860px){.ad-grid{grid-template-columns:1fr}}
+.ad-form-card{
+background:#fff;
+border:1px solid #e8ecf1;
+border-radius:10px;
+padding:28px;
+box-shadow:0 1px 3px rgba(0,0,0,0.04);
+}
+.ad-info-card{
+background:#fff;
+border:1px solid #e8ecf1;
+border-radius:10px;
+padding:28px;
+box-shadow:0 1px 3px rgba(0,0,0,0.04);
+}
+.benefits-list{
+list-style:none;
+padding:0;
+margin:0;
+}
+.benefits-list li{
+padding:14px 0;
+border-bottom:1px solid #f0f2f5;
+display:flex;
+gap:12px;
+align-items:flex-start;
+}
+.benefits-list li:last-child{border-bottom:none}
+.benefits-list .icon{
+width:36px;height:36px;
+background:linear-gradient(135deg,#2d6bff,#00d4ff);
+border-radius:8px;
+display:flex;align-items:center;justify-content:center;
+color:#fff;
+font-size:14px;font-weight:700;
+flex-shrink:0;
+margin-top:2px;
+}
+.benefits-list .text strong{
+display:block;
+font-size:14px;color:#1a1a2e;
+margin-bottom:2px;
+}
+.benefits-list .text span{
+font-size:13px;color:#888;
+line-height:1.5;
+}
+.terms-box{
+margin-top:20px;
+padding:16px 18px;
+background:#fff8f0;
+border:1px solid #f5e6d3;
+border-radius:8px;
+font-size:12px;
+color:#776;
+line-height:1.7;
+}
+.terms-box strong{color:#c0392b}
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+<header class="header">
+<h1>STARTUP <span>SWP Calculator</span></h1>
+<p><a href="index.html" style="color:#2d6bff;text-decoration:none">&larr; Back to Calculator</a> &nbsp;|&nbsp; <a href="login.html" style="color:#2d6bff;text-decoration:none">Advertiser Login &rarr;</a></p>
+</header>
+
+<div class="ad-intro">
+<h2>Advertise With STARTUP</h2>
+<p>Partner with us and earn <span class="highlight-text">lifetime commission</span> on company profits. Every advertisement you bring generates residual income for you — <span class="highlight-text">forever</span>.</p>
+<p>Once the platform goes live, registered advertisers become <span class="highlight-text">lifetime stockholders</span> entitled to recurring commissions based on their advertisement volume.</p>
+<div class="commission-badge">Commission Range: 2% – 5% of Company Profit</div>
+</div>
+
+<div class="ad-grid">
+
+<div class="ad-form-card">
+<div class="card-title">Advertiser Registration</div>
+
+<form id="adForm">
+<div class="field">
+<label>Full Name</label>
+<div class="input-wrap">
+<input type="text" id="adName" placeholder="Enter your full name" required>
+</div>
+</div>
+
+<div class="field">
+<label>Email Address</label>
+<div class="input-wrap">
+<input type="email" id="adEmail" placeholder="Enter your email" autocomplete="email" required>
+</div>
+</div>
+
+<div class="field">
+<label>Password</label>
+<div class="input-wrap">
+<input type="password" id="adPassword" placeholder="Create a password" required>
+</div>
+</div>
+
+<div class="field">
+<label>Mobile Number</label>
+<div class="input-wrap">
+<span class="prefix">+91</span>
+<input type="tel" id="adMobile" placeholder="Enter your mobile number" required>
+</div>
+</div>
+
+<div class="field">
+<label>Location</label>
+<div class="input-wrap">
+<input type="text" id="adLocation" placeholder="City / State" required>
+</div>
+</div>
+
+<div class="field">
+<label>Address</label>
+<div class="input-wrap">
+<input type="text" id="adAddress" placeholder="Full address" required>
+</div>
+</div>
+
+<div class="field">
+<label>Bank Details</label>
+<div class="input-wrap">
+<input type="text" id="adBank" placeholder="Account number, IFSC, bank name" required>
+</div>
+<div class="hint">We need this to deposit your lifetime commission payouts.</div>
+</div>
+
+<button type="submit" class="btn" id="adSubmitBtn">Register as Advertiser</button>
+</form>
+</div>
+
+<div class="ad-info-card">
+<div class="card-title">Why Advertise With Us?</div>
+
+<ul class="benefits-list">
+<li>
+<div class="icon">%</div>
+<div class="text">
+<strong>Lifetime Commission (2% – 5%)</strong>
+<span>Earn a recurring share of company profits based on the volume of advertisement you bring in. Your commission rate grows with your contribution.</span>
+</div>
+</li>
+<li>
+<div class="icon">S</div>
+<div class="text">
+<strong>Lifetime Stockholder Status</strong>
+<span>Registered advertisers are automatically enrolled as lifetime stockholders. You benefit from the company's long-term growth and profitability.</span>
+</div>
+</li>
+<li>
+<div class="icon">$</div>
+<div class="text">
+<strong>No Upfront Cost</strong>
+<span>Registration is completely free. You only earn when the company earns — a true partnership model.</span>
+</div>
+</li>
+<li>
+<div class="icon">T</div>
+<div class="text">
+<strong>Transparent Tracking</strong>
+<span>Monitor your advertisement volume, commission earnings, and payout history through your personal dashboard once the platform goes live.</span>
+</div>
+</li>
+<li>
+<div class="icon">E</div>
+<div class="text">
+<strong>Early Adopter Bonus</strong>
+<span>First 500 advertisers receive a 1% bonus commission boost for life, bringing their total earning potential to up to 6%.</span>
+</div>
+</li>
+</ul>
+
+<div class="terms-box">
+<strong>Important Note:</strong> Commission rates are determined by advertisement volume brackets. Higher volume = higher commission percentage. Full terms and conditions will be shared upon platform launch. All payouts are subject to company revenue and profit thresholds. STARTUP reserves the right to modify commission structures with prior notice to registered advertisers.
+</div>
+</div>
+
+</div>
+
+<div class="footer">STARTUP SWP Calculator &bull; Advertiser Program &bull; Educational Use Only</div>
+</div>
+
+<div class="popup-overlay" id="popupOverlay">
+<div class="popup">
+<div class="popup-title">Registration Successful</div>
+<div class="popup-sub">You are now registered as a STARTUP advertiser. Click "Got it" to view your portfolio and referral link.</div>
+<button class="popup-btn" id="popupClose">Got it</button>
+</div>
+</div>
+
+<script>
+const adForm=document.getElementById('adForm');
+const popupOverlay=document.getElementById('popupOverlay');
+const popupClose=document.getElementById('popupClose');
+const submitBtn=document.getElementById('adSubmitBtn');
+
+function redirectToPortfolio(){
+const email=localStorage.getItem('advertiser_email');
+if(email)window.location.href='portfolio.html?email='+encodeURIComponent(email);
+}
+
+popupClose.addEventListener('click',redirectToPortfolio);
+popupOverlay.addEventListener('click',e=>{
+if(e.target===popupOverlay)redirectToPortfolio();
+});
+
+adForm.addEventListener('submit',async(e)=>{
+e.preventDefault();
+const name=document.getElementById('adName').value.trim();
+const email=document.getElementById('adEmail').value.trim();
+const password=document.getElementById('adPassword').value;
+const mobile=document.getElementById('adMobile').value.trim();
+const location=document.getElementById('adLocation').value.trim();
+const address=document.getElementById('adAddress').value.trim();
+const bank=document.getElementById('adBank').value.trim();
+
+if(!name||!email||!password||!mobile||!location||!address||!bank){
+submitBtn.textContent='Please fill all fields';
+setTimeout(()=>submitBtn.textContent='Register as Advertiser',2000);
+return;
+}
+
+submitBtn.textContent='Submitting...';
+submitBtn.disabled=true;
+
+try{
+const r=await fetch('/api/advertise',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({name,email,password,mobile,location,address,bank_details:bank})
+});
+const data=await r.json();
+if(r.ok){
+const adv=data.advertiser;
+localStorage.setItem('advertiser_email',email.trim().toLowerCase());
+localStorage.setItem('advertiser_name',adv?.name||name);
+if(adv?.coupon_code)localStorage.setItem('advertiser_coupon',adv.coupon_code);
+popupOverlay.classList.add('active');
+adForm.reset();
+setTimeout(redirectToPortfolio,3000);
+}else{
+submitBtn.textContent=data.error||'Registration failed';
+setTimeout(()=>submitBtn.textContent='Register as Advertiser',2500);
+}
+}catch(e){
+  submitBtn.textContent='Error: '+(e.message||'Connection failed');
+  setTimeout(()=>submitBtn.textContent='Register as Advertiser',3000);
+}
+submitBtn.disabled=false;
+});
+</script>
+</body>
+</html>
