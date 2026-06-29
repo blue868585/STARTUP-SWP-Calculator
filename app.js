@@ -217,4 +217,82 @@ router.get('/api/portfolio', async (req, res) => {
   }
 });
 
+// ── Admin Routes ──
+
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin123';
+const ADMIN_TOKEN = 'startup-admin-' + crypto.createHash('md5').update(ADMIN_PASSWORD).digest('hex').slice(0, 8);
+
+router.post('/api/admin/login', async (req, res) => {
+  try {
+    const { password } = req.body;
+    if (!password) {
+      return res.status(400).json({ error: 'Password required' });
+    }
+    if (password !== ADMIN_PASSWORD) {
+      return res.status(401).json({ error: 'Invalid admin password' });
+    }
+    res.json({ message: 'Admin login successful', token: ADMIN_TOKEN });
+  } catch (e) {
+    console.error('Admin login error:', e);
+    res.status(500).json({ error: 'Server error: ' + (e.message || e) });
+  }
+});
+
+function requireAdmin(req, res, next) {
+  const token = req.query.token || req.headers['x-admin-token'];
+  if (token === ADMIN_TOKEN) return next();
+  res.status(403).json({ error: 'Unauthorized' });
+}
+
+router.get('/api/admin/dashboard', requireAdmin, async (req, res) => {
+  try {
+    const db = supabaseAdmin || supabase;
+    let totalAdvertisers = 0, totalPreregistrations = 0;
+    let advertisers = [], preregistrations = [];
+
+    try {
+      const { count } = await db.from('advertisers').select('*', { count: 'exact', head: true });
+      totalAdvertisers = count || 0;
+    } catch (e) { console.error('Count advertisers error:', e); }
+
+    try {
+      const { count } = await db.from('preregistrations').select('*', { count: 'exact', head: true });
+      totalPreregistrations = count || 0;
+    } catch (e) { console.error('Count preregistrations error:', e); }
+
+    try {
+      const { data } = await db.from('advertisers').select('*').order('created_at', { ascending: false });
+      advertisers = data || [];
+    } catch (e) { console.error('Fetch advertisers error:', e); }
+
+    try {
+      const { data } = await db.from('preregistrations').select('*').order('created_at', { ascending: false });
+      preregistrations = data || [];
+    } catch (e) { console.error('Fetch preregistrations error:', e); }
+
+    const advertisersWithRefs = advertisers.map(adv => {
+      const refCount = preregistrations.filter(p => p.coupon_code === adv.coupon_code).length;
+      return {
+        id: adv.id, name: adv.name, email: adv.email, mobile: adv.mobile,
+        location: adv.location, coupon_code: adv.coupon_code,
+        ad_volume: refCount * 10, preregistrations_count: refCount,
+        bank_details: adv.bank_details, created_at: adv.created_at
+      };
+    });
+
+    res.json({
+      stats: {
+        total_advertisers: totalAdvertisers,
+        total_preregistrations: totalPreregistrations,
+        total_tokens_awarded: advertisersWithRefs.reduce((s, a) => s + a.ad_volume, 0)
+      },
+      advertisers: advertisersWithRefs,
+      preregistrations
+    });
+  } catch (e) {
+    console.error('Admin dashboard error:', e);
+    res.status(500).json({ error: 'Server error: ' + e.message });
+  }
+});
+
 module.exports = { router, supabase };

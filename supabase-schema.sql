@@ -151,7 +151,31 @@ RETURNS NUMERIC AS $$
 $$ LANGUAGE sql;
 
 -- --------------------------------------------------
--- 6. HELPER: Update last_login on login
+-- 6. ADMINS TABLE (admin panel access)
+-- --------------------------------------------------
+CREATE TABLE IF NOT EXISTS admins (
+  id BIGSERIAL PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  name TEXT NOT NULL DEFAULT 'Admin',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can login check admins" ON admins;
+CREATE POLICY "Anyone can login check admins"
+  ON admins FOR SELECT
+  TO anon
+  USING (true);
+
+-- Insert default admin (change password after first login)
+INSERT INTO admins (email, password, name)
+VALUES ('admin@startup.com', 'admin123', 'Super Admin')
+ON CONFLICT (email) DO NOTHING;
+
+-- --------------------------------------------------
+-- 7. HELPER: Update last_login on login
 -- --------------------------------------------------
 CREATE OR REPLACE FUNCTION update_last_login()
 RETURNS TRIGGER AS $$

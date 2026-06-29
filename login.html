@@ -79,6 +79,28 @@ color:#c0392b;
 margin-bottom:16px;
 }
 .error-msg.show{display:block}
+.admin-toggle{
+display:flex;align-items:center;gap:14px;margin-top:20px;
+}
+.admin-toggle-line{flex:1;height:1px;background:#e8ecf1}
+.admin-toggle-btn{
+padding:6px 20px;border:1px solid #d0d5dd;border-radius:20px;
+background:#fff;color:#888;font-size:12px;font-weight:500;
+font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;
+}
+.admin-toggle-btn:hover{border-color:#e74c3c;color:#e74c3c}
+.admin-toggle-btn.active{background:#e74c3c;border-color:#e74c3c;color:#fff}
+.admin-section{
+display:none;margin-top:16px;padding:20px;background:#fff8f8;
+border:1px solid #ffd5d5;border-radius:10px;
+}
+.admin-section.active{display:block}
+.admin-section-title{
+font-size:12px;font-weight:600;text-transform:uppercase;
+letter-spacing:0.5px;color:#c0392b;margin-bottom:16px;text-align:center;
+}
+.admin-btn{background:#e74c3c !important}
+.admin-btn:hover{background:#c0392b !important}
 </style>
 </head>
 <body>
@@ -133,6 +155,24 @@ margin-bottom:16px;
 <div class="login-footer">
 Don't have an account? <a href="advertise.html">Register as Advertiser</a>
 </div>
+
+<div class="admin-toggle" id="adminToggle">
+<div class="admin-toggle-line"></div>
+<button class="admin-toggle-btn" id="adminToggleBtn">Security</button>
+<div class="admin-toggle-line"></div>
+</div>
+
+<div class="admin-section" id="adminSection">
+<div class="admin-section-title">Admin Panel Access</div>
+<div class="field">
+<label>Admin Password</label>
+<div class="input-wrap">
+<input type="password" id="adminPassword" placeholder="Enter admin password">
+</div>
+</div>
+<button class="btn admin-btn" id="adminLoginBtn">Access Admin Panel</button>
+<div id="adminError" class="error-msg"></div>
+</div>
 </div>
 </div>
 </div>
@@ -144,6 +184,11 @@ const mobileGroup=document.getElementById('mobileGroup');
 const loginForm=document.getElementById('loginForm');
 const loginBtn=document.getElementById('loginBtn');
 const loginError=document.getElementById('loginError');
+const adminToggleBtn=document.getElementById('adminToggleBtn');
+const adminSection=document.getElementById('adminSection');
+const adminLoginBtn=document.getElementById('adminLoginBtn');
+const adminPassword=document.getElementById('adminPassword');
+const adminError=document.getElementById('adminError');
 let activeTab='email';
 
 tabs.forEach(tab=>{
@@ -155,6 +200,50 @@ emailGroup.classList.toggle('active',activeTab==='email');
 mobileGroup.classList.toggle('active',activeTab==='mobile');
 loginError.classList.remove('show');
 });
+});
+
+adminToggleBtn.addEventListener('click',()=>{
+adminToggleBtn.classList.toggle('active');
+adminSection.classList.toggle('active');
+adminError.classList.remove('show');
+adminPassword.value='';
+adminPassword.focus();
+});
+
+adminLoginBtn.addEventListener('click',async()=>{
+adminError.classList.remove('show');
+const pwd=adminPassword.value;
+if(!pwd){
+adminError.textContent='Please enter the admin password';
+adminError.classList.add('show');
+return;
+}
+adminLoginBtn.textContent='Authenticating...';
+adminLoginBtn.disabled=true;
+try{
+const r=await fetch('/api/admin/login',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({password:pwd})
+});
+const data=await r.json();
+if(r.ok){
+localStorage.setItem('admin_auth',data.token);
+window.location.href='admin.html';
+}else{
+adminError.textContent=data.error||'Invalid password';
+adminError.classList.add('show');
+}
+}catch(e){
+adminError.textContent='Error: '+(e.message||'Connection failed');
+adminError.classList.add('show');
+}
+adminLoginBtn.textContent='Access Admin Panel';
+adminLoginBtn.disabled=false;
+});
+
+adminPassword.addEventListener('keydown',e=>{
+if(e.key==='Enter')adminLoginBtn.click();
 });
 
 loginForm.addEventListener('submit',async(e)=>{
