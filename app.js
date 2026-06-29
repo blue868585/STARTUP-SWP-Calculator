@@ -4,16 +4,7 @@ const crypto = require('crypto');
 const ws = require('ws');
 require('dotenv').config();
 
-const app = express();
-app.use(express.json());
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  if (req.method === 'OPTIONS') return res.sendStatus(204);
-  next();
-});
+const router = express.Router();
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://svcdloiiorqrcngfznnc.supabase.co';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
@@ -42,9 +33,9 @@ function requireSupabase(req, res, next) {
   }
   next();
 }
-app.use('/api', requireSupabase);
+router.use('/api', requireSupabase);
 
-app.get('/api/health', (req, res) => {
+router.get('/api/health', (req, res) => {
   res.json({ status: 'ok', supabase: supabaseReady ? 'connected' : 'disconnected', env: !!process.env.SUPABASE_ANON_KEY });
 });
 
@@ -52,7 +43,7 @@ function generateCoupon() {
   return 'ADV-' + crypto.randomBytes(4).toString('hex').toUpperCase();
 }
 
-app.post('/api/preregister', async (req, res) => {
+router.post('/api/preregister', async (req, res) => {
   try {
     const email = req.body.email?.trim().toLowerCase();
     const couponCode = req.body.coupon_code?.trim().toUpperCase();
@@ -76,23 +67,13 @@ app.post('/api/preregister', async (req, res) => {
     }
 
     const writeClient = supabaseAdmin || supabase;
-    const { error } = await writeClient.from('preregistrations').insert({ email, coupon_code: couponCode });
-    if (error) {
-      console.error('Prereg insert error:', error);
-      if (error.code === 'PGRST205') return res.status(500).json({ error: 'Database table not set up. Run the SQL from supabase-schema.sql in your Supabase SQL editor.' });
-      throw error;
+    const { error: insertError } = await writeClient.from('preregistrations').insert({ email, coupon_code: couponCode });
+    if (insertError) {
+      console.error('Prereg insert error:', insertError);
+      if (insertError.code === 'PGRST205') return res.status(500).json({ error: 'Database table not set up. Run the SQL from supabase-schema.sql in your Supabase SQL editor.' });
+      throw insertError;
     }
-
-    const currentVolume = Number(advertiser.ad_volume) || 0;
-    const newVolume = currentVolume + 10;
-    const { data: updated, error: updateError } = await writeClient.from('advertisers').update({ ad_volume: newVolume }).eq('id', advertiser.id).select();
-    if (updateError) {
-      console.error('Token update error:', updateError);
-      return res.status(500).json({ error: 'Failed to update tokens: ' + updateError.message });
-    }
-    if (!updated || updated.length === 0) {
-      return res.status(500).json({ error: 'Token update failed — RLS policy blocks UPDATE. Add SUPABASE_SERVICE_ROLE_KEY to .env or run the UPDATE policy SQL from supabase-schema.sql.' });
-    }
+    // Tokens awarded automatically by database trigger "trg_award_tokens"
 
     res.json({ message: 'Pre-registration successful!' });
   } catch (e) {
@@ -101,7 +82,7 @@ app.post('/api/preregister', async (req, res) => {
   }
 });
 
-app.post('/api/advertise', async (req, res) => {
+router.post('/api/advertise', async (req, res) => {
   try {
     const { name, email, password, mobile, location, address, bank_details } = req.body;
     if (!name || !email || !password || !mobile || !location || !address || !bank_details) {
@@ -152,7 +133,7 @@ app.post('/api/advertise', async (req, res) => {
   }
 });
 
-app.post('/api/advertise/login', async (req, res) => {
+router.post('/api/advertise/login', async (req, res) => {
   try {
     const { email, mobile, password } = req.body;
     if ((!email && !mobile) || !password) {
@@ -187,7 +168,7 @@ app.post('/api/advertise/login', async (req, res) => {
   }
 });
 
-app.get('/api/portfolio', async (req, res) => {
+router.get('/api/portfolio', async (req, res) => {
   try {
     const email = req.query.email?.trim().toLowerCase();
     if (!email) return res.status(400).json({ error: 'Email required' });
@@ -208,7 +189,7 @@ app.get('/api/portfolio', async (req, res) => {
       console.error('Count query error (non-fatal):', e);
     }
 
-    const volume = Number(advertiser.ad_volume) || 0;
+    const volume = preregCount * 10;
 
     let profitShareTier, tierLabel, nextTierVolume, nextTierPercent;
     if (volume >= 1000) { profitShareTier = 50; tierLabel = 'Platinum'; nextTierVolume = null; nextTierPercent = null }
@@ -236,4 +217,4 @@ app.get('/api/portfolio', async (req, res) => {
   }
 });
 
-module.exports = { app, supabase };
+module.exports = { router, supabase };

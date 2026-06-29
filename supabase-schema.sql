@@ -122,7 +122,36 @@ CREATE POLICY "Anyone can read sessions"
   USING (true);
 
 -- --------------------------------------------------
--- 4. HELPER: Update last_login on login
+-- 4. DATABASE TRIGGER: auto-award tokens atomically (no race condition)
+-- --------------------------------------------------
+CREATE OR REPLACE FUNCTION award_tokens_on_preregister()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE advertisers SET ad_volume = COALESCE(ad_volume, 0) + 10
+  WHERE coupon_code = NEW.coupon_code;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_award_tokens ON preregistrations;
+CREATE TRIGGER trg_award_tokens
+  AFTER INSERT ON preregistrations
+  FOR EACH ROW
+  EXECUTE FUNCTION award_tokens_on_preregister();
+
+-- --------------------------------------------------
+-- 5. UTILITY: fix ad_volume from existing preregistrations
+-- --------------------------------------------------
+CREATE OR REPLACE FUNCTION recalc_ad_volume(adv_coupon TEXT)
+RETURNS NUMERIC AS $$
+  UPDATE advertisers a
+  SET ad_volume = (SELECT COUNT(*)::NUMERIC * 10 FROM preregistrations p WHERE p.coupon_code = a.coupon_code)
+  WHERE a.coupon_code = adv_coupon
+  RETURNING ad_volume;
+$$ LANGUAGE sql;
+
+-- --------------------------------------------------
+-- 6. HELPER: Update last_login on login
 -- --------------------------------------------------
 CREATE OR REPLACE FUNCTION update_last_login()
 RETURNS TRIGGER AS $$

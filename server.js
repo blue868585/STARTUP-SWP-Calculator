@@ -4,6 +4,16 @@ require('dotenv').config();
 
 const app = express();
 
+app.use(express.json());
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
 app.use(express.static(path.join(__dirname)));
 
 app.get('/advertise', (req, res) => {
@@ -14,8 +24,8 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
 });
 
-const { app: apiApp } = require('./app');
-app.use(apiApp);
+const { router } = require('./app');
+app.use(router);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
