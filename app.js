@@ -84,8 +84,8 @@ router.post('/api/preregister', async (req, res) => {
 
 router.post('/api/advertise', async (req, res) => {
   try {
-    const { name, email, password, mobile, location, address, bank_details } = req.body;
-    if (!name || !email || !password || !mobile || !location || !address || !bank_details) {
+    const { name, email, password, mobile, location, address, upi_id } = req.body;
+    if (!name || !email || !password || !mobile || !location || !address || !upi_id) {
       return res.status(400).json({ error: 'All fields are required' });
     }
     const cleanEmail = email.trim().toLowerCase();
@@ -108,7 +108,7 @@ router.post('/api/advertise', async (req, res) => {
       mobile,
       location,
       address,
-      bank_details,
+      upi_id,
       coupon_code: couponCode
     }).select();
 
@@ -219,7 +219,7 @@ router.get('/api/portfolio', async (req, res) => {
 
 // ── Admin Routes ──
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin123';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Ai@6300';
 const ADMIN_TOKEN = 'startup-admin-' + crypto.createHash('md5').update(ADMIN_PASSWORD).digest('hex').slice(0, 8);
 
 router.post('/api/admin/login', async (req, res) => {
@@ -276,7 +276,7 @@ router.get('/api/admin/dashboard', requireAdmin, async (req, res) => {
         id: adv.id, name: adv.name, email: adv.email, mobile: adv.mobile,
         location: adv.location, coupon_code: adv.coupon_code,
         ad_volume: refCount * 10, preregistrations_count: refCount,
-        bank_details: adv.bank_details, created_at: adv.created_at
+        upi_id: adv.upi_id, created_at: adv.created_at
       };
     });
 

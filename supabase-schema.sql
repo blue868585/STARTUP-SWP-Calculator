@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS advertisers (
   password TEXT NOT NULL,
   location TEXT NOT NULL,
   address TEXT NOT NULL,
-  bank_details TEXT NOT NULL,
+  upi_id TEXT NOT NULL,
   coupon_code TEXT UNIQUE,
   ad_volume NUMERIC DEFAULT 0,
   last_login TIMESTAMPTZ,
@@ -52,6 +52,8 @@ CREATE TABLE IF NOT EXISTS advertisers (
 ALTER TABLE advertisers ADD COLUMN IF NOT EXISTS coupon_code TEXT UNIQUE;
 ALTER TABLE advertisers ADD COLUMN IF NOT EXISTS ad_volume NUMERIC DEFAULT 0;
 ALTER TABLE advertisers ADD COLUMN IF NOT EXISTS last_login TIMESTAMPTZ;
+ALTER TABLE advertisers ADD COLUMN IF NOT EXISTS upi_id TEXT;
+ALTER TABLE advertisers DROP COLUMN IF EXISTS bank_details;
 
 -- Add unique constraint on mobile for login by mobile number
 -- (Drops existing constraint first if re-running, then re-creates)

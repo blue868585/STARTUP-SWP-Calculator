@@ -183,11 +183,11 @@ line-height:1.7;
 </div>
 
 <div class="field">
-<label>Bank Details</label>
+<label>UPI ID</label>
 <div class="input-wrap">
-<input type="text" id="adBank" placeholder="Account number, IFSC, bank name" required>
+<input type="text" id="adBank" placeholder="e.g. name@upi, 9876543210@paytm" required>
 </div>
-<div class="hint">We need this to deposit your lifetime commission payouts.</div>
+<div class="hint">Enter your UPI ID (PhonePe, Paytm, Google Pay, etc.) for commission payouts.</div>
 </div>
 
 <button type="submit" class="btn" id="adSubmitBtn">Register as Advertiser</button>
@@ -292,7 +292,7 @@ try{
 const r=await fetch('/api/advertise',{
 method:'POST',
 headers:{'Content-Type':'application/json'},
-body:JSON.stringify({name,email,password,mobile,location,address,bank_details:bank})
+body:JSON.stringify({name,email,password,mobile,location,address,upi_id:bank})
 });
 const data=await r.json();
 if(r.ok){
