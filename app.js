@@ -13,6 +13,20 @@ let supabase = null;
 let supabaseAdmin = null;
 let supabaseReady = false;
 
+async function checkSchema() {
+  try {
+    const db = supabaseAdmin || supabase;
+    const { error } = await db.from('advertisers').select('upi_id').limit(1);
+    if (error && error.message && error.message.includes('upi_id')) {
+      console.log('Schema check: upi_id column MISSING');
+    } else {
+      console.log('Schema check: upi_id column exists');
+    }
+  } catch (e) {
+    console.error('Schema check error:', e.message);
+  }
+}
+
 if (!SUPABASE_ANON_KEY) {
   console.error('ERROR: SUPABASE_ANON_KEY not set. API routes will return 503.');
 } else {
@@ -25,6 +39,7 @@ if (!SUPABASE_ANON_KEY) {
     });
   }
   supabaseReady = true;
+  checkSchema();
 }
 
 function requireSupabase(req, res, next) {
@@ -101,20 +116,22 @@ router.post('/api/advertise', async (req, res) => {
     console.log('Generated coupon:', couponCode);
 
     const writeClient = supabaseAdmin || supabase;
-    const { data: newAdvertiser, error } = await writeClient.from('advertisers').insert({
+    const insertData = {
       name,
       email: cleanEmail,
       password,
       mobile,
       location,
       address,
-      upi_id,
       coupon_code: couponCode
-    }).select();
+    };
+    insertData.upi_id = upi_id;
+    const { data: newAdvertiser, error } = await writeClient.from('advertisers').insert(insertData).select();
 
     if (error) {
       console.error('Insert error:', error);
       if (error.code === 'PGRST205') return res.status(500).json({ error: 'Database table not set up. Run the SQL from supabase-schema.sql in your Supabase SQL editor.' });
+      if (error.code === '23505') return res.status(409).json({ error: 'This email or mobile number is already registered.' });
       throw error;
     }
 

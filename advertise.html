@@ -191,6 +191,7 @@ line-height:1.7;
 </div>
 
 <button type="submit" class="btn" id="adSubmitBtn">Register as Advertiser</button>
+<div id="adError" style="color:#ff4757;font-size:13px;margin-top:10px;text-align:center;display:none"></div>
 </form>
 </div>
 
@@ -258,6 +259,13 @@ const adForm=document.getElementById('adForm');
 const popupOverlay=document.getElementById('popupOverlay');
 const popupClose=document.getElementById('popupClose');
 const submitBtn=document.getElementById('adSubmitBtn');
+const adError=document.getElementById('adError');
+
+function showError(msg){
+adError.textContent=msg;
+adError.style.display='block';
+setTimeout(()=>adError.style.display='none',5000);
+}
 
 function redirectToPortfolio(){
 const email=localStorage.getItem('advertiser_email');
@@ -280,8 +288,7 @@ const address=document.getElementById('adAddress').value.trim();
 const bank=document.getElementById('adBank').value.trim();
 
 if(!name||!email||!password||!mobile||!location||!address||!bank){
-submitBtn.textContent='Please fill all fields';
-setTimeout(()=>submitBtn.textContent='Register as Advertiser',2000);
+showError('Please fill all fields');
 return;
 }
 
@@ -304,12 +311,10 @@ popupOverlay.classList.add('active');
 adForm.reset();
 setTimeout(redirectToPortfolio,3000);
 }else{
-submitBtn.textContent=data.error||'Registration failed';
-setTimeout(()=>submitBtn.textContent='Register as Advertiser',2500);
+showError(data.error||'Registration failed');
 }
 }catch(e){
-  submitBtn.textContent='Error: '+(e.message||'Connection failed');
-  setTimeout(()=>submitBtn.textContent='Register as Advertiser',3000);
+showError('Connection failed. Make sure the server is running (node server.js).');
 }
 submitBtn.disabled=false;
 });
