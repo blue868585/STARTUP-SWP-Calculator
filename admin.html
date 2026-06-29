@@ -224,6 +224,7 @@ Logout
 <th>Email</th>
 <th>Coupon Used</th>
 <th>Date</th>
+<th>Action</th>
 </tr>
 </thead>
 <tbody id="preregistrationsBody"></tbody>
@@ -243,6 +244,20 @@ async function deleteAdvertiser(id){
 if(!confirm('Delete advertiser #'+id+' and all their pre-registrations?'))return;
 try{
 const r=await fetch('/api/admin/delete-advertiser',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({token:authToken,id})
+});
+const data=await r.json();
+if(r.ok)location.reload();
+else alert('Error: '+(data.error||'Failed'));
+}catch(e){alert('Error: '+(e.message||'Connection failed'))}
+}
+
+async function deletePrereg(id){
+if(!confirm('Delete pre-registration #'+id+'?'))return;
+try{
+const r=await fetch('/api/admin/delete-prereg',{
 method:'POST',
 headers:{'Content-Type':'application/json'},
 body:JSON.stringify({token:authToken,id})
@@ -339,7 +354,8 @@ const row=document.createElement('tr');
 row.innerHTML='<td class="mono">'+(p.id||'-')+'</td>'+
 '<td>'+(p.email||'-')+'</td>'+
 '<td><span class="coupon-tag">'+(p.coupon_code||'-')+'</span></td>'+
-'<td style="font-size:12px;color:#6b7084">'+(p.created_at?new Date(p.created_at).toLocaleString():'-')+'</td>';
+'<td style="font-size:12px;color:#6b7084">'+(p.created_at?new Date(p.created_at).toLocaleString():'-')+'</td>'+
+'<td><button class="del-btn" onclick="deletePrereg('+(p.id)+')">Delete</button></td>';
 preregBody.appendChild(row);
 });
 }

@@ -318,4 +318,25 @@ router.post('/api/admin/delete-advertiser', async (req, res) => {
   }
 });
 
+router.post('/api/admin/delete-prereg', async (req, res) => {
+  try {
+    const { token, id } = req.body;
+    if (token !== ADMIN_TOKEN) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    if (!id) {
+      return res.status(400).json({ error: 'Pre-registration ID required' });
+    }
+    const db = supabaseAdmin || supabase;
+    const { count } = await db.from('preregistrations').delete().eq('id', id).select('', { count: 'exact', head: true });
+    if (count === 0) {
+      return res.status(404).json({ error: 'Pre-registration not found' });
+    }
+    res.json({ message: 'Pre-registration deleted.' });
+  } catch (e) {
+    console.error('Delete prereg error:', e);
+    res.status(500).json({ error: 'Server error: ' + e.message });
+  }
+});
+
 module.exports = { router, supabase };
