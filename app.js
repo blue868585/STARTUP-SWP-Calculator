@@ -295,20 +295,25 @@ router.get('/api/admin/dashboard', requireAdmin, async (req, res) => {
   }
 });
 
-router.post('/api/admin/clear-data', async (req, res) => {
+router.post('/api/admin/delete-advertiser', async (req, res) => {
   try {
-    const { token } = req.body;
+    const { token, id } = req.body;
     if (token !== ADMIN_TOKEN) {
       return res.status(403).json({ error: 'Unauthorized' });
     }
+    if (!id) {
+      return res.status(400).json({ error: 'Advertiser ID required' });
+    }
     const db = supabaseAdmin || supabase;
-    const { error: err1 } = await db.from('preregistrations').delete().neq('id', 0);
-    if (err1) throw err1;
-    const { error: err2 } = await db.from('advertisers').delete().neq('id', 0);
-    if (err2) throw err2;
-    res.json({ message: 'All advertiser and preregistration data cleared.' });
+    const { data: adv } = await db.from('advertisers').select('coupon_code').eq('id', id).maybeSingle();
+    if (adv?.coupon_code) {
+      await db.from('preregistrations').delete().eq('coupon_code', adv.coupon_code);
+    }
+    const { error } = await db.from('advertisers').delete().eq('id', id);
+    if (error) throw error;
+    res.json({ message: 'Advertiser deleted.' });
   } catch (e) {
-    console.error('Clear data error:', e);
+    console.error('Delete advertiser error:', e);
     res.status(500).json({ error: 'Server error: ' + e.message });
   }
 });

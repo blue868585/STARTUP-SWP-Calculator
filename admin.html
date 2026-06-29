@@ -113,14 +113,12 @@ box-shadow:0 2px 6px rgba(37,99,235,0.25);
 }
 .retry-btn:hover{background:linear-gradient(135deg,#1d4ed8,#1e40af)}
 .empty-state{text-align:center;padding:40px;color:#9ca3af;font-size:14px}
-.danger-section{text-align:center;padding:16px 0 0}
-.danger-btn{
-padding:10px 28px;border-radius:8px;border:2px solid #ef4444;
-background:#fff;color:#ef4444;font-size:13px;font-weight:700;
+.del-btn{
+padding:4px 12px;border-radius:6px;border:1px solid #fecaca;
+background:#fff;color:#dc2626;font-size:11px;font-weight:600;
 font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;
 }
-.danger-btn:hover{background:#ef4444;color:#fff}
-.danger-btn:disabled{opacity:.5;cursor:not-allowed;background:#fef2f2;color:#fca5a5;border-color:#fca5a5}
+.del-btn:hover{background:#dc2626;color:#fff;border-color:#dc2626}
 @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){
 .app-inner{padding:16px 12px}
@@ -204,6 +202,7 @@ Logout
 <th>Tier</th>
 <th>UPI ID</th>
 <th>Joined</th>
+<th>Action</th>
 </tr>
 </thead>
 <tbody id="advertisersBody"></tbody>
@@ -235,39 +234,24 @@ Logout
 
 </div>
 
-<div class="section danger-section">
-<button class="danger-btn" id="clearDataBtn">Delete All Data</button>
-</div>
-
 </div>
 
 <script>
 const authToken=localStorage.getItem('admin_auth');
 
-document.getElementById('clearDataBtn')?.addEventListener('click',async()=>{
-if(!confirm('Are you sure you want to delete ALL advertisers and pre-registrations?\n\nThis action cannot be undone.'))return;
-if(!confirm('FINAL WARNING: This will permanently erase all user data. Continue?'))return;
-const btn=document.getElementById('clearDataBtn');
-btn.disabled=true;btn.textContent='Deleting...';
+async function deleteAdvertiser(id){
+if(!confirm('Delete advertiser #'+id+' and all their pre-registrations?'))return;
 try{
-const r=await fetch('/api/admin/clear-data',{
+const r=await fetch('/api/admin/delete-advertiser',{
 method:'POST',
 headers:{'Content-Type':'application/json'},
-body:JSON.stringify({token:authToken})
+body:JSON.stringify({token:authToken,id})
 });
 const data=await r.json();
-if(r.ok){
-btn.textContent='All Data Deleted';
-setTimeout(()=>location.reload(),1500);
-}else{
-alert('Error: '+(data.error||'Failed'));
-btn.disabled=false;btn.textContent='Delete All Data';
+if(r.ok)location.reload();
+else alert('Error: '+(data.error||'Failed'));
+}catch(e){alert('Error: '+(e.message||'Connection failed'))}
 }
-}catch(e){
-alert('Error: '+(e.message||'Connection failed'));
-btn.disabled=false;btn.textContent='Delete All Data';
-}
-});
 
 const authToken=localStorage.getItem('admin_auth');
 
@@ -338,7 +322,8 @@ row.innerHTML='<td class="mono">'+(a.id||'-')+'</td>'+
 '<td>'+(a.preregistrations_count||0)+'</td>'+
 '<td><span class="tier-tag '+tClass+'">'+tier+'</span></td>'+
 '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;font-family:JetBrains Mono,monospace;font-size:12px;color:#2563eb">'+(a.upi_id||'-')+'</td>'+
-'<td style="font-size:12px;color:#6b7084">'+(a.created_at?new Date(a.created_at).toLocaleDateString():'-')+'</td>';
+'<td style="font-size:12px;color:#6b7084">'+(a.created_at?new Date(a.created_at).toLocaleDateString():'-')+'</td>'+
+'<td><button class="del-btn" onclick="deleteAdvertiser('+(a.id)+')">Delete</button></td>';
 advBody.appendChild(row);
 });
 }
