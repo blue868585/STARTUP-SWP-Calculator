@@ -253,8 +253,6 @@ else alert('Error: '+(data.error||'Failed'));
 }catch(e){alert('Error: '+(e.message||'Connection failed'))}
 }
 
-const authToken=localStorage.getItem('admin_auth');
-
 document.getElementById('logoutBtn')?.addEventListener('click',()=>{
 localStorage.removeItem('admin_auth');
 window.location.href='login.html';
