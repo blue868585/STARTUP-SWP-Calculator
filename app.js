@@ -295,4 +295,22 @@ router.get('/api/admin/dashboard', requireAdmin, async (req, res) => {
   }
 });
 
+router.post('/api/admin/clear-data', async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (token !== ADMIN_TOKEN) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    const db = supabaseAdmin || supabase;
+    const { error: err1 } = await db.from('preregistrations').delete().neq('id', 0);
+    if (err1) throw err1;
+    const { error: err2 } = await db.from('advertisers').delete().neq('id', 0);
+    if (err2) throw err2;
+    res.json({ message: 'All advertiser and preregistration data cleared.' });
+  } catch (e) {
+    console.error('Clear data error:', e);
+    res.status(500).json({ error: 'Server error: ' + e.message });
+  }
+});
+
 module.exports = { router, supabase };
